@@ -10,6 +10,8 @@ import com.facebook.react.ReactApplication;
 import com.xmartlabs.lineloginmanager.LineLoginPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.sonnylab.imageintent.ImageIntentPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
