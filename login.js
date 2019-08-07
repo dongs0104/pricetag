@@ -16,7 +16,6 @@ class Login extends Component  {
   }
 
   FBGraphRequest = async (fields, callback) => {
-    console.log('FBGraphRequest')
     const accessData = await AccessToken.getCurrentAccessToken();
     // Create a graph request asking for user information
     const infoRequest = new GraphRequest('/me', {
@@ -31,15 +30,14 @@ class Login extends Component  {
     new GraphRequestManager().addRequest(infoRequest).start();
   };
   _FBLoginCallback = async (err, ret) => {
-    console.log(ret)
-    if (error) {
+    if (err) {
       
     } else {
       try {
-        console.log(ret);
-        await AsyncStorage.setItem('@haetae:profile', ret);
+        await this._storeData('@haetae:profile', ret);
+        this._loadLanding();
       }
-      catch (error) {
+      catch (err) {
         // Error saving data
       }
     }
@@ -68,24 +66,34 @@ class Login extends Component  {
     console.log('onPressFacebook');
     this._loadLanding();
   }
-  _storeData = async () => {
+  _storeData = async (key, data)=> {
     try {
-      await AsyncStorage.setItem('@haetae:profile', 'test');
+      ret = new Object();
+      if(data.profile !== undefined) {
+        ret.profileUri = data.profile.pictureURL;
+        ret.name = data.openId.name ? data.openId.name : data.profile.displayName;
+        ret.email = data.openId.email ? data.openId.email : '';
+      }
+      else {
+        // FB
+      }
+      await AsyncStorage.setItem(key, JSON.stringify(ret));
     } catch (error) {
       // Error saving data
+      console.log(error);
     }
   };
   
   onPressLine = () => {
-    console.log('onPressLine');
     LineLogin.login()
     .then((user) => {
-      console.log(user.profile.displayName)
+      this._storeData('@haetae:profile', user);
+      this._loadLanding();
     })
     .catch((err) => {
       console.log(err)
-    });
-    this._loadLanding();
+    })
+    
   }
 
   onPressInstagram = () => {
@@ -94,7 +102,6 @@ class Login extends Component  {
   }
 
   render = () => {
-    console.log(this.props);
     return (
       <View style={styles.container}>
         <ImageBackground
