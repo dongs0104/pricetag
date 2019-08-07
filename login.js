@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, ImageBackground, Image, TouchableOpacity, Alert
 import { Navigation } from 'react-native-navigation';
 import { LoginButton, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk';
 import AsyncStorage from '@react-native-community/async-storage';
+import LineLogin from 'react-native-line-sdk';
 
 import PropTypes from 'prop-types';
 
@@ -15,7 +16,7 @@ class Login extends Component  {
   }
 
   FBGraphRequest = async (fields, callback) => {
-    console.log('test')
+    console.log('FBGraphRequest')
     const accessData = await AccessToken.getCurrentAccessToken();
     // Create a graph request asking for user information
     const infoRequest = new GraphRequest('/me', {
@@ -31,18 +32,18 @@ class Login extends Component  {
   };
   _FBLoginCallback = async (err, ret) => {
     console.log(ret)
-      if (error) {
-        
-      } else {
-        try {
-          console.log(ret);
-          await AsyncStorage.setItem('@haetae:profile', ret);
-        }
-        catch (error) {
-          // Error saving data
-        }
+    if (error) {
+      
+    } else {
+      try {
+        console.log(ret);
+        await AsyncStorage.setItem('@haetae:profile', ret);
       }
-    } ;
+      catch (error) {
+        // Error saving data
+      }
+    }
+  } ;
   _loadLanding = () => {
     Navigation.setStackRoot(this.props.componentId,
     {
@@ -75,9 +76,15 @@ class Login extends Component  {
     }
   };
   
-  onPressGoogle = () => {
-    console.log('onPressGoogle');
-    this._storeData();
+  onPressLine = () => {
+    console.log('onPressLine');
+    LineLogin.login()
+    .then((user) => {
+      console.log(user.profile.displayName)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
     this._loadLanding();
   }
 
@@ -124,14 +131,15 @@ class Login extends Component  {
                     } else if (result.isCancelled) {
                       console.log('login is cancelled.');
                     } else {
-                      this.FBGraphRequest('id, email, name, picture.type(large)').then(this._FBLoginCallback);
+                      this.FBGraphRequest('id, email, name, picture.type(large)', 
+                      this._FBLoginCallback);
                     }
                   }
                 }
                 onLogoutFinished={() => console.log('logout.')}/>
               <TouchableOpacity
                 style={styles.loginButtonImage}
-                onPress={this.onPressGoogle}
+                onPress={this.onPressLine}
               >
                 <Image
                   style={styles.loginButtonImage}
